@@ -1,7 +1,3 @@
-print("""
-    This script is run when a users uninstalls the package.
-    
-    It will not run during an update.
-    Here you should purge all the files you installed with your install script.
-    Do not nuke the system.
-""")
+be.based.run("rm /bin/camera.lja /bin/camera.py /usr/share/help/camera.txt")
+
+be.api.setvar("return", "0")
