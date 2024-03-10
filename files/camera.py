@@ -142,10 +142,15 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
             "flip",
             toml=be.api.betterpath(vr("pr")),
         )
-        be.devices[vr("dev")][0].denoise = cptoml.fetch(
-            "denoise",
-            toml=be.api.betterpath(vr("pr")),
+        vr(
+            "dn",
+            cptoml.fetch(
+                "denoise",
+                toml=be.api.betterpath(vr("pr")),
+            ),
         )
+        if vr("dn"):
+            be.devices[vr("dev")][0].denoise = vr("dn")
         be.devices[vr("dev")][0].awb_gain = cptoml.fetch(
             "awb_gain",
             toml=be.api.betterpath(vr("pr")),
@@ -210,7 +215,9 @@ if "deinit" in vr("opts")["o"] or "d" in vr("opts")["o"]:
         term.write("Camera not initialized!")
     else:
         be.devices[vr("dev")][0].deinit()
-        be.based.run("rmnod " + vr("dev") + ("_" if vr("dev")[-1].isdigit() else "") + "0")
+        be.based.run(
+            "rmnod " + vr("dev") + ("_" if vr("dev")[-1].isdigit() else "") + "0"
+        )
         term.write("Camera deinitialized successfully.")
         be.api.setvar("return", "0")
 
