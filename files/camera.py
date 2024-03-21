@@ -204,7 +204,7 @@ if "capture" in vr("opts")["o"] or "c" in vr("opts")["o"]:
         vrp("pic_name", str(vr("tt").tm_sec) + ".jpeg")
         term.write(vr("pic_name") + '"...')
         if "dry-run" not in vr("opts")["o"]:
-            with be.api.fopen(vr("pic_name"), "wb") as pv[get_pid()]["f"]:
+            with be.api.fs.open(vr("pic_name"), "wb") as pv[get_pid()]["f"]:
                 vr("f").write(vr("photo_data"))
         term.write("Saved!")
         be.api.setvar("return", "0")
