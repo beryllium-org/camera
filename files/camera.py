@@ -5,13 +5,13 @@ vr("opts", be.api.xarg())
 
 vr(
     "dev",
-    cptoml.fetch("device", toml=be.api.betterpath("/etc/camera.d/config.toml")),
+    cptoml.fetch("device", toml=be.api.fs.resolve("/etc/camera.d/config.toml")),
 )
 
 if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
     be.api.setvar("return", "1")
     if vr("dev") not in be.devices:
-        vr("conft", be.api.betterpath("/etc/camera.d/config.toml"))
+        vr("conft", be.api.fs.resolve("/etc/camera.d/config.toml"))
         if "mode" in vr("opts")["o"] or "m" in vr("opts")["o"]:
             if "mode" in vr("opts")["o"]:
                 vr("mode", vr("opts")["o"]["mode"])
@@ -25,12 +25,12 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
                     toml=vr("conft"),
                 ),
             )
-        vr("pr", be.api.betterpath("/etc/camera.d/presets/" + vr("mode") + ".toml"))
+        vr("pr", be.api.fs.resolve("/etc/camera.d/presets/" + vr("mode") + ".toml"))
         exec(
             'vr("px", espcamera.PixelFormat.'
             + cptoml.fetch(
                 "pixel_format",
-                toml=be.api.betterpath(vr("pr")),
+                toml=be.api.fs.resolve(vr("pr")),
             )
             + ")"
         )
@@ -38,7 +38,7 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
             'vr("fr", espcamera.FrameSize.'
             + cptoml.fetch(
                 "frame_size",
-                toml=be.api.betterpath(vr("pr")),
+                toml=be.api.fs.resolve(vr("pr")),
             )
             + ")"
         )
@@ -46,7 +46,7 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
             "qual",
             cptoml.fetch(
                 "jpeg_quality",
-                toml=be.api.betterpath(vr("pr")),
+                toml=be.api.fs.resolve(vr("pr")),
             ),
         )
         vr(
@@ -140,20 +140,20 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
         term.write('Initializing camera on mode "' + vr("mode") + '"')
         be.devices[vr("dev")][0].vflip = cptoml.fetch(
             "flip",
-            toml=be.api.betterpath(vr("pr")),
+            toml=be.api.fs.resolve(vr("pr")),
         )
         vr(
             "dn",
             cptoml.fetch(
                 "denoise",
-                toml=be.api.betterpath(vr("pr")),
+                toml=be.api.fs.resolve(vr("pr")),
             ),
         )
         if vr("dn"):
             be.devices[vr("dev")][0].denoise = vr("dn")
         be.devices[vr("dev")][0].awb_gain = cptoml.fetch(
             "awb_gain",
-            toml=be.api.betterpath(vr("pr")),
+            toml=be.api.fs.resolve(vr("pr")),
         )
         sleep(0.5)
         be.devices[vr("dev")][0].take()
@@ -183,7 +183,7 @@ if "capture" in vr("opts")["o"] or "c" in vr("opts")["o"]:
             "branding",
             cptoml.fetch(
                 "branding",
-                toml=be.api.betterpath("/etc/camera.d/config.toml"),
+                toml=be.api.fs.resolve("/etc/camera.d/config.toml"),
             ),
         )
         vr("pic_name", vr("branding") + "-")
