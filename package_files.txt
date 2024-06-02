@@ -1,3 +1,4 @@
 file camera.lja /bin/camera.lja
 folder /bin/camera
 file main.py /bin/camera/main.py
+file camera.txt /usr/share/help/camera.txt
