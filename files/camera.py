@@ -78,12 +78,28 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
             ),
         )
         vr(
-            "i2c",
+            "node",
             cptoml.fetch(
                 "i2c",
                 toml=vr("conft"),
             ),
         )
+        vr("i2c", None)
+        vr("ok", False)
+        be.api.subscript("/bin/stringproccessing/devid.py")
+        if (
+            vr("ok")
+            and vr("dev_name") in be.devices.keys()
+            and vr("dev_name") == "i2c"
+            and vr("dev_id") in be.devices[vr("dev_name")].keys()
+        ):
+            if be.devices[vr("dev_name")][vr("dev_id")].try_lock():
+                be.devices[vr("dev_name")][vr("dev_id")].unlock()
+                vr("i2c", be.devices[vr("dev_name")][vr("dev_id")])
+            else:
+                term.write("I2C bus in use!")
+        else:
+            term.write("Could not find system I2C bus.")
         vr(
             "external_clock_pin",
             cptoml.fetch(
@@ -112,53 +128,55 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
                 toml=vr("conft"),
             ),
         )
-        be.based.run("mknod " + vr("dev"))
-        vr("node", be.api.getvar("return"))
-        be.api.subscript("/bin/stringproccessing/devid.py")
-        be.devices[vr("dev_name")][vr("dev_id")] = espcamera.Camera(
-            data_pins=be.devices["gpiochip"][0].pin(vr("data_pins"), force=True),
-            pixel_clock_pin=be.devices["gpiochip"][0].pin(
-                vr("pixel_clock_pin"), force=True
-            ),
-            vsync_pin=be.devices["gpiochip"][0].pin(vr("vsync_pin"), force=True),
-            href_pin=be.devices["gpiochip"][0].pin(vr("href_pin"), force=True),
-            i2c=be.devices["gpiochip"][0].pin(vr("i2c"), force=True)(),
-            external_clock_pin=be.devices["gpiochip"][0].pin(
-                vr("external_clock_pin"), force=True
-            ),
-            external_clock_frequency=vr("external_clock_frequency"),
-            powerdown_pin=be.devices["gpiochip"][0].pin(
-                vr("powerdown_pin"), force=True
-            ),
-            reset_pin=be.devices["gpiochip"][0].pin(vr("reset_pin"), force=True),
-            pixel_format=vr("px"),
-            frame_size=vr("fr"),
-            jpeg_quality=vr("qual"),
-            framebuffer_count=1,
-            grab_mode=espcamera.GrabMode.LATEST,
-        )
-        term.write('Initializing camera on mode "' + vr("mode") + '"')
-        be.devices[vr("dev")][0].vflip = cptoml.fetch(
-            "flip",
-            toml=be.api.fs.resolve(vr("pr")),
-        )
-        vr(
-            "dn",
-            cptoml.fetch(
-                "denoise",
+        if vr("i2c") is not None:
+            vrd("node")
+            be.based.run("mknod " + vr("dev"))
+            vr("node", be.api.getvar("return"))
+            be.api.subscript("/bin/stringproccessing/devid.py")
+            be.devices[vr("dev_name")][vr("dev_id")] = espcamera.Camera(
+                data_pins=be.devices["gpiochip"][0].pin(vr("data_pins"), force=True),
+                pixel_clock_pin=be.devices["gpiochip"][0].pin(
+                    vr("pixel_clock_pin"), force=True
+                ),
+                vsync_pin=be.devices["gpiochip"][0].pin(vr("vsync_pin"), force=True),
+                href_pin=be.devices["gpiochip"][0].pin(vr("href_pin"), force=True),
+                i2c=vr("i2c"),
+                external_clock_pin=be.devices["gpiochip"][0].pin(
+                    vr("external_clock_pin"), force=True
+                ),
+                external_clock_frequency=vr("external_clock_frequency"),
+                powerdown_pin=be.devices["gpiochip"][0].pin(
+                    vr("powerdown_pin"), force=True
+                ),
+                reset_pin=be.devices["gpiochip"][0].pin(vr("reset_pin"), force=True),
+                pixel_format=vr("px"),
+                frame_size=vr("fr"),
+                jpeg_quality=vr("qual"),
+                framebuffer_count=1,
+                grab_mode=espcamera.GrabMode.LATEST,
+            )
+            term.write('Initializing camera on mode "' + vr("mode") + '"')
+            be.devices[vr("dev")][0].vflip = cptoml.fetch(
+                "flip",
                 toml=be.api.fs.resolve(vr("pr")),
-            ),
-        )
-        if vr("dn"):
-            be.devices[vr("dev")][0].denoise = vr("dn")
-        be.devices[vr("dev")][0].awb_gain = cptoml.fetch(
-            "awb_gain",
-            toml=be.api.fs.resolve(vr("pr")),
-        )
-        sleep(0.5)
-        be.devices[vr("dev")][0].take()
-        term.write("Initialized!")
-        be.api.setvar("return", "0")
+            )
+            vr(
+                "dn",
+                cptoml.fetch(
+                    "denoise",
+                    toml=be.api.fs.resolve(vr("pr")),
+                ),
+            )
+            if vr("dn"):
+                be.devices[vr("dev")][0].denoise = vr("dn")
+            be.devices[vr("dev")][0].awb_gain = cptoml.fetch(
+                "awb_gain",
+                toml=be.api.fs.resolve(vr("pr")),
+            )
+            sleep(0.5)
+            be.devices[vr("dev")][0].take()
+            term.write("Initialized!")
+            be.api.setvar("return", "0")
     else:
         term.write("Camera already initialized.")
 
@@ -214,7 +232,10 @@ if "deinit" in vr("opts")["o"] or "d" in vr("opts")["o"]:
     if vr("dev") not in be.devices:
         term.write("Camera not initialized!")
     else:
-        be.devices[vr("dev")][0].deinit()
+        try:
+            be.devices[vr("dev")][0].deinit()
+        except:
+            pass
         be.based.run(
             "rmnod " + vr("dev") + ("_" if vr("dev")[-1].isdigit() else "") + "0"
         )
