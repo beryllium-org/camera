@@ -1,4 +1,7 @@
 file camera.lja /bin/camera.lja
 folder /bin/camera
 file main.py /bin/camera/main.py
+file init.py /bin/camera/init.py
+file capture.py /bin/camera/capture.py
+file serve.py /bin/camera/serve.py
 file camera.txt /usr/share/help/camera.txt

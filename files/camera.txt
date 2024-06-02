@@ -5,6 +5,7 @@ Configure and capture camera data.
   -i, --init          initialize the camera
   -d, --deinit        deinitialize the camera
   -c, --capture       capture a photo, and save it to a file
+  -s, --serve         start up an RTSP server
   -m, --mode          use an alternative mode
 
 Default settings are configured in "/etc/camera.d/config.toml".
