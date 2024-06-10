@@ -14,7 +14,7 @@ if "init" in vr("opts")["o"] or "i" in vr("opts")["o"]:
 if "capture" in vr("opts")["o"] or "c" in vr("opts")["o"]:
     be.api.subscript("/bin/camera/capture.py")
 
-id "serve" in vr("opts")["o"] or "s" in vr("opts")["o"]:
+if "serve" in vr("opts")["o"] or "s" in vr("opts")["o"]:
     be.api.subscript("/bin/camera/serve.py")
 
 if "deinit" in vr("opts")["o"] or "d" in vr("opts")["o"]:
