@@ -119,8 +119,10 @@ if vr("dev") not in be.devices:
     )
     if vr("i2c") is not None:
         vrd("node")
-        be.based.run("mknod " + vr("dev"))
-        vr("node", be.api.getvar("return"))
+        be.api.setvar("argj", "mknod " + vr("dev"))
+        be.api.subscript("/bin/mknod.py")
+        vr("node", be.api.getvar("out"))
+        be.api.setvar("out", None)
         be.api.subscript("/bin/stringproccessing/devid.py")
         be.devices[vr("dev_name")][vr("dev_id")] = espcamera.Camera(
             data_pins=be.devices["gpiochip"][0].pin(vr("data_pins"), force=True),
